@@ -34,8 +34,6 @@ class VideoBox(QWidget):
         hboxLayout.addWidget(self.vboxGroupBox)
         mainLayout.addLayout(hboxLayout)
         self.setLayout(mainLayout)
-        self.threshold = [0.6, 0.6, 0.7]
-
         self.video_url = video_url
         self.video_type = video_type  # 0: offline  1: realTime
         self.auto_play = auto_play
@@ -62,7 +60,7 @@ class VideoBox(QWidget):
         self.gridGroupBox = QGroupBox("Grid layout")
         layout = QGridLayout()
         self.pictureLabel = QLabel()
-        init_image = QPixmap("data/001.png").scaled(1000, 700)
+        init_image = QPixmap("data/loading.jpg").scaled(1000, 700)
         self.pictureLabel.setPixmap(init_image)
         self.threadId = 0
         self.playButton = QPushButton()
@@ -84,7 +82,7 @@ class VideoBox(QWidget):
     def creatVboxGroupBox(self):
         self.vboxGroupBox = QGroupBox("Vbox layout")
         layout = QVBoxLayout()
-        init_image = QPixmap("data/001.png").scaled(200, 200)
+        init_image = QPixmap("data/loading.jpg").scaled(200, 200)
         self.imgeLabel_0 = QLabel()
         self.imgeLabel_0.setPixmap(init_image)
         self.imgeLabel_1 = QLabel()
@@ -264,7 +262,7 @@ if __name__ == "__main__":
     mapp = QApplication(sys.argv)
     Pnet, Rnet, Onet = loadNet()
     video_path = 'east.mp4'
-    cap = cv2.VideoCapture(video_path)
+    #cap = cv2.VideoCapture(video_path)
     mw = VideoBox()
     lock = threading.Lock()
     mw.initNet(Pnet,Rnet,Onet,lock)
