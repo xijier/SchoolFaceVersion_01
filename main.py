@@ -12,6 +12,7 @@ import imutils
 from rectangleDrawThread import rectangleThread
 import tools_matrix as tools
 import numpy as np
+from queue import Queue
 
 songs = ['1.mp4', '2.mp4']
 img_w_dis = 100
@@ -99,34 +100,41 @@ class MyWindow(QMainWindow):
         self.gridGroupBox_RecognizeDetail.setLayout(layout)
     def createGridGroupBox_Recognized(self):
         self.list_Recognize = []
+        self.q_recognize = Queue()
         layout = QGridLayout()
-        init_image = QPixmap("data/001.png").scaled(img_w_dis, img_w_dis)
-        self.imgeLabel_1 = QLabel()
-        self.imgeLabel_1.setPixmap(init_image)
-        self.imgeLabel_2 = QLabel()
-        self.imgeLabel_2.setPixmap(init_image)
-        layout.addWidget(self.imgeLabel_1)
-        layout.addWidget(self.imgeLabel_2)
+        # init_image = QPixmap("data/001.png").scaled(img_w_dis, img_w_dis)
+        # self.imgeLabel_1 = QLabel()
+        # self.imgeLabel_1.setPixmap(init_image)
+        # self.imgeLabel_2 = QLabel()
+        # self.imgeLabel_2.setPixmap(init_image)
+        # layout.addWidget(self.imgeLabel_1)
+        # layout.addWidget(self.imgeLabel_2)
 
-        # init_image = QPixmap("data/loading.jpg").scaled(img_w_dis, img_w_dis)
-        #
-        # for i in range(0,2):
-        #     for j in range(0,6):
-        #         vboxGroupBox = QGroupBox()
-        #         layoutbox = QVBoxLayout()
-        #         imgeLabel_0 = QLabel()
-        #         imgeLabel_0.setPixmap(init_image)
-        #         imgeLabel_name = QLabel("姓名")
-        #         imgeLabel_id = QLabel("学号")
-        #         imgeLabel_rate = QLabel("识别率")
-        #         layoutbox.addWidget(imgeLabel_0)
-        #         layoutbox.addWidget(imgeLabel_name)
-        #         layoutbox.addWidget(imgeLabel_id)
-        #         layoutbox.addWidget(imgeLabel_rate)
-        #         vboxGroupBox.setLayout(layoutbox)
-        #         layout.addWidget(vboxGroupBox, i, j)
-        #         self.list_UnRecognize.append(vboxGroupBox)
+        init_image = QPixmap("data/loading.jpg").scaled(img_w_dis, img_w_dis)
 
+        for i in range(0,2):
+            for j in range(0,6):
+                vboxGroupBox = QGroupBox()
+                layoutbox = QVBoxLayout()
+                layoutbox.setObjectName("boxlayout")
+
+                imgeLabel_0 = QLabel()
+                imgeLabel_0.setObjectName("image")
+                imgeLabel_0.setPixmap(init_image)
+                imgeLabel_name = QLabel("姓名")
+                imgeLabel_name.setObjectName("name")
+                imgeLabel_id = QLabel("学号")
+                imgeLabel_id.setObjectName("id")
+                imgeLabel_rate = QLabel("识别率")
+                imgeLabel_rate.setObjectName("rate")
+                layoutbox.addWidget(imgeLabel_0)
+                layoutbox.addWidget(imgeLabel_name)
+                layoutbox.addWidget(imgeLabel_id)
+                layoutbox.addWidget(imgeLabel_rate)
+                vboxGroupBox.setLayout(layoutbox)
+                layout.addWidget(vboxGroupBox, i, j)
+                self.list_Recognize.append(vboxGroupBox)
+                self.q_recognize.put(vboxGroupBox)
         self.gridGroupBox_Recognize = QGroupBox("已识别")
         self.gridGroupBox_Recognize.setLayout(layout)
 
@@ -415,7 +423,17 @@ class MyWindow(QMainWindow):
                 temp_image = QImage(crop_img.flatten(), width, height, QImage.Format_RGB888)
                 temp_pixmap = QPixmap.fromImage(temp_image)
                 # 加消息队列线程实现图片更新
-                self.imgeLabel_1.setPixmap(temp_pixmap)
+                #self.imgeLabel_1.setPixmap(temp_pixmap)
+
+                item = self.q_recognize.get()
+                # layoutbox = item.findChild(QVBoxLayout, "boxlayout")
+                # layoutbox.removeWidget(QLabel)
+                imageLabel_img = item.findChild(QLabel, "image")
+                imageLabel_img.setPixmap(temp_pixmap)
+                imageLabel_name = item.findChild(QLabel, "name")
+                imageLabel_id = item.findChild(QLabel, "id")
+                imageLabel_rate = item.findChild(QLabel, "rate")
+                self.q_recognize.put(item)
                 #cv2.imwrite('data/' + str(self.threadID) + 'test.jpg', crop_img)
         return draw
 
